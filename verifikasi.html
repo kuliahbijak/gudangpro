@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Verifikasi Dokumen — GudangPro OS</title>
+  <meta name="description" content="Periksa keaslian dokumen yang diterbitkan GudangPro OS dengan kode verifikasi atau QR.">
+  <meta name="theme-color" content="#0B2545">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <link rel="preconnect" href="https://script.google.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="./css/app.css?v=1.0.0">
+  <style>
+    body { background: linear-gradient(170deg, #0B2545 0, #12365F 260px, var(--bg) 260px); min-height: 100vh; }
+    .vw { max-width: 640px; margin: 0 auto; padding: 28px 16px 40px; }
+    .vh { display: flex; align-items: center; gap: 12px; color: #fff; margin-bottom: 22px; }
+    .vh .lg { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #1FB5C2, #0A7A85); display: grid; place-items: center; }
+    .vh h1 { font-size: 18px; margin: 0; } .vh p { margin: 2px 0 0; font-size: 12.5px; color: #9FB3CC; }
+    .vc { background: var(--card); border-radius: 16px; box-shadow: var(--sh-2); padding: 22px; }
+    .vc + .vc { margin-top: 14px; }
+    .vs { display: flex; gap: 14px; align-items: center; padding: 16px; border-radius: 12px; margin-bottom: 18px; }
+    .vs.sah { background: var(--ok-50); color: var(--ok-t); } .vs.tdk { background: rgba(239,68,68,.1); color: var(--bad-t); } .vs.pdg { background: var(--warn-50); color: var(--warn-t); }
+    .vs .ic { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; flex: none; color: #fff; }
+    .vs.sah .ic { background: var(--ok); } .vs.tdk .ic { background: #EF4444; } .vs.pdg .ic { background: var(--warn); }
+    .vs b { font-size: 17px; display: block; }
+    .kv { display: grid; grid-template-columns: 140px 1fr; gap: 9px 14px; font-size: 13.5px; }
+    .kv .k { color: var(--muted); } .kv > span:not(.k) { font-weight: 600; word-break: break-word; }
+    .ttd { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; }
+    .ttd + .ttd { margin-top: 8px; } .ttd.on { border-color: var(--teal); background: var(--teal-50); }
+    .ttd .no { width: 28px; height: 28px; border-radius: 8px; background: var(--navy); color: #fff; font-weight: 700; font-size: 12px; display: grid; place-items: center; flex: none; }
+    .frm { display: flex; gap: 8px; } .frm input { flex: 1; text-transform: uppercase; }
+    .drop2 { border: 2px dashed var(--line); border-radius: 12px; padding: 18px; text-align: center; cursor: pointer; color: var(--muted); font-size: 13px; }
+    .drop2:hover { border-color: var(--teal); color: var(--teal); }
+    .hs { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11px; word-break: break-all; color: var(--muted); }
+    .ft { text-align: center; font-size: 12px; color: var(--muted); margin-top: 22px; }
+    @media (max-width: 520px) { .kv { grid-template-columns: 1fr; gap: 2px; } .kv .k { margin-top: 8px; } }
+  </style>
+</head>
+<body>
+<div class="vw">
+  <div class="vh"><div class="lg"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+    <div><h1>Verifikasi Keaslian Dokumen</h1><p id="v-inst">GudangPro OS · Sistem Gudang &amp; Inventaris</p></div></div>
+
+  <div class="vc" id="v-hasil"><div class="row"><span class="spin"></span><span>Memeriksa kode verifikasi…</span></div></div>
+
+  <div class="vc">
+    <h3 style="margin:0 0 10px;font-size:15px">Periksa dokumen lain</h3>
+    <form class="frm" id="v-form"><input class="inp" id="v-k" placeholder="Masukkan kode verifikasi" autocomplete="off" maxlength="40"><button class="btn pri" type="submit">Periksa</button></form>
+    <div class="small muted" style="margin-top:8px">Kode tercetak di bawah QR pada dokumen. Pindai QR dengan kamera HP untuk membuka halaman ini secara otomatis.</div>
+  </div>
+
+  <div class="ft">Halaman ini membaca data langsung dari server penerbit. Tidak ada data pribadi yang disimpan di perangkat Anda.</div>
+</div>
+
+<script src="./js/config.js?v=1.0.0"></script>
+<script>
+(function () {
+  'use strict';
+  var URL_GAS = (window.APP_CONFIG && window.APP_CONFIG.GAS_URL) || '';
+  var $ = function (s) { return document.querySelector(s); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var BLN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  function tgl(s) { if (!s) return '—'; var m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/); if (!m) return esc(s); return (+m[3]) + ' ' + BLN[+m[2] - 1] + ' ' + m[1] + (m[4] ? ', ' + m[4] + '.' + m[5] + ' WIB' : ''); }
+  var IC = {
+    ok: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+    x: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+    w: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 8v5M12 16.5v.5"/></svg>'
+  };
+  var hashSah = '';
+
+  function status(kelas, ikon, judul, sub) { return '<div class="vs ' + kelas + '"><div class="ic">' + IC[ikon] + '</div><div><b>' + judul + '</b><span class="small">' + sub + '</span></div></div>'; }
+
+  function tampil(r, kode) {
+    var box = $('#v-hasil');
+    if (!r.success) {
+      box.innerHTML = status('tdk', 'x', 'Dokumen tidak dapat diverifikasi', esc(r.message || 'Kode tidak dikenal.')) +
+        '<div class="small muted">Kode yang diperiksa: <span class="mono b">' + esc(kode) + '</span>. Bila dokumen ini Anda terima dari pihak lain, hubungi penerbit untuk memastikan keasliannya.</div>';
+      return;
+    }
+    var d = r.data; hashSah = d.hash || '';
+    if (d.instansi) $('#v-inst').textContent = d.instansi + ' · ' + (d.aplikasi || 'GudangPro OS');
+    var st = d.status === 'SAH' ? status('sah', 'ok', 'Dokumen SAH', 'Diterbitkan resmi oleh ' + esc(d.instansi || 'penerbit') + ' dan tercatat di sistem.')
+      : d.status === 'DITARIK' ? status('tdk', 'x', 'Dokumen telah DITARIK', 'Dokumen ini dibatalkan oleh penerbit dan tidak berlaku lagi.' + (d.alasanTarik ? ' Alasan: ' + esc(d.alasanTarik) : ''))
+      : status('pdg', 'w', 'Dokumen belum terbit', 'Status saat ini: ' + esc(d.status) + '.');
+    box.innerHTML = st + '<div class="kv"><span class="k">Nomor dokumen</span><span class="mono">' + esc(d.nomor || '—') + '</span><span class="k">Perihal</span><span>' + esc(d.judul || '—') + '</span><span class="k">Tanggal terbit</span><span>' + tgl(d.terbit) + '</span><span class="k">Kode verifikasi</span><span class="mono">' + esc(kode) + '</span></div>' +
+      (d.penandatangan && d.penandatangan.length ? '<h3 style="margin:20px 0 10px;font-size:14px">Penanda tangan</h3>' + d.penandatangan.map(function (p) {
+        return '<div class="ttd' + (p.sorot ? ' on' : '') + '"><div class="no">' + esc(p.slot) + '</div><div style="flex:1"><div class="b">' + esc(p.nama) + '</div><div class="small muted">' + esc(p.jabatan || p.label || '') + '</div><div class="tiny muted" style="margin-top:3px">' + (p.waktu ? 'Disetujui ' + tgl(p.waktu) : '') + (p.metode ? ' · ' + esc(p.metode) : '') + '</div></div>' + (p.sorot ? '<span class="bdg teal nodot">QR ini</span>' : '') + '</div>';
+      }).join('') : '') +
+      (d.status === 'SAH' && hashSah ? '<h3 style="margin:20px 0 6px;font-size:14px">Cocokkan berkas PDF (opsional)</h3><div class="small muted" style="margin-bottom:8px">Pilih berkas PDF yang Anda terima. Berkas diperiksa <b>di perangkat Anda</b> (tidak diunggah) dan dibandingkan dengan sidik digital SHA-256 milik penerbit.</div><div class="drop2" id="v-drop">Klik untuk memilih berkas PDF</div><div id="v-cek" style="margin-top:10px"></div><div class="hs" style="margin-top:8px">SHA-256 penerbit: ' + esc(hashSah) + '</div>' : '');
+    var dr = $('#v-drop'); if (dr) dr.onclick = pilihPdf;
+  }
+
+  function pilihPdf() {
+    var i = document.createElement('input'); i.type = 'file'; i.accept = 'application/pdf,.pdf';
+    i.onchange = function () {
+      var f = i.files[0]; if (!f) return;
+      if (!(window.crypto && crypto.subtle)) { $('#v-cek').innerHTML = '<div class="note warn small">Browser ini tidak mendukung pemeriksaan sidik digital.</div>'; return; }
+      $('#v-cek').innerHTML = '<div class="small">Menghitung sidik digital ' + esc(f.name) + '…</div>';
+      f.arrayBuffer().then(function (buf) { return crypto.subtle.digest('SHA-256', buf); }).then(function (h) {
+        var hex = Array.prototype.map.call(new Uint8Array(h), function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+        $('#v-cek').innerHTML = hex === hashSah
+          ? '<div class="note ok small"><div><b>Berkas identik.</b> Isi PDF sama persis dengan yang diterbitkan.</div></div>'
+          : '<div class="note bad small"><div><b>Berkas berbeda.</b> PDF ini tidak sama dengan berkas asli (mungkin diubah, dicetak ulang, atau versi lain).<div class="hs">SHA-256 berkas: ' + hex + '</div></div></div>';
+      });
+    };
+    i.click();
+  }
+
+  function periksa(kode) {
+    kode = String(kode || '').trim().toUpperCase().replace(/[^A-Z0-9\-]/g, '');
+    if (!kode) { $('#v-hasil').innerHTML = status('pdg', 'w', 'Masukkan kode verifikasi', 'Kode tercetak di bawah QR pada dokumen.'); return; }
+    if (!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]{20,}\/exec/.test(URL_GAS) && !(window.APP_CONFIG && window.APP_CONFIG.DEV)) { $('#v-hasil').innerHTML = status('pdg', 'w', 'Layanan belum dikonfigurasi', 'Alamat server belum diisi di js/config.js.'); return; }
+    $('#v-hasil').innerHTML = '<div class="row"><span class="spin"></span><span>Memeriksa kode verifikasi…</span></div>';
+    var url = new URL(location.href); url.searchParams.set('k', kode); history.replaceState(null, '', url);
+    fetch(URL_GAS, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'doc.verify', data: { k: kode } }) })
+      .then(function (r) { return r.json(); })
+      .then(function (r) { tampil(r, kode); })
+      .catch(function () { $('#v-hasil').innerHTML = status('pdg', 'w', 'Tidak dapat terhubung ke server', 'Periksa koneksi internet lalu muat ulang halaman.'); });
+  }
+
+  $('#v-form').onsubmit = function (e) { e.preventDefault(); periksa($('#v-k').value); };
+  var k = new URLSearchParams(location.search).get('k');
+  if (k) { $('#v-k').value = k; periksa(k); } else periksa('');
+})();
+</script>
+</body>
+</html>

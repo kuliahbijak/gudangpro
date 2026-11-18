@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>GudangPro OS — WMS & Inventory Control</title>
+  <meta name="description" content="GudangPro OS: aplikasi manajemen gudang & pengendalian persediaan — FIFO/FEFO, lokasi blok-rak-bin, scan barcode HP, stok opname, approval, dan audit trail.">
+  <meta name="theme-color" content="#0B2545">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GudangPro">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://script.google.com" crossorigin>
+  <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="./css/app.css?v=1.0.0">
+  <style>
+    .splash{min-height:100vh;display:grid;place-items:center;background:linear-gradient(160deg,#0B2545,#12365F)}
+    .splash .b{display:flex;flex-direction:column;align-items:center;gap:14px;color:#fff;font-family:Inter,system-ui,sans-serif}
+    .splash .l{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#1FB5C2,#0A7A85);display:grid;place-items:center;box-shadow:0 10px 30px -8px rgba(14,154,167,.8);animation:pl 1.4s ease-in-out infinite}
+    .splash .t{font-weight:800;font-size:20px}.splash .s{font-size:12px;color:#9FB3CC}
+    @keyframes pl{50%{transform:scale(.94)}}
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div class="splash"><div class="b"><div class="l"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 21V10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v11"/><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35a2 2 0 0 1 1.26-1.86l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35z"/><path d="M6 13h12"/><path d="M6 17h12"/></svg></div><div class="t">GudangPro OS</div><div class="s">Memuat gudang Anda…</div></div></div>
+  </div>
+  <noscript><p style="padding:20px">GudangPro OS membutuhkan JavaScript.</p></noscript>
+  <script defer src="./js/config.js?v=1.0.0"></script>
+  <script defer src="./js/icons.js?v=1.0.0"></script>
+  <script defer src="./js/core.js?v=1.0.0"></script>
+  <script defer src="./js/charts.js?v=1.0.0"></script>
+  <script defer src="./js/pages/dashboard.js?v=1.0.0"></script>
+  <script defer src="./js/pages/stok.js?v=1.0.0"></script>
+  <script defer src="./js/pages/trx.js?v=1.0.0"></script>
+  <script defer src="./js/pages/scan.js?v=1.0.0"></script>
+  <script defer src="./js/pages/opname.js?v=1.0.0"></script>
+  <script defer src="./js/pages/approval.js?v=1.0.0"></script>
+  <script defer src="./js/pages/master.js?v=1.0.0"></script>
+  <script defer src="./js/pages/laporan.js?v=1.0.0"></script>
+  <script defer src="./js/pages/dokumen.js?v=1.0.0"></script>
+  <script defer src="./js/pages/notif.js?v=1.0.0"></script>
+  <script defer src="./js/pages/sistem.js?v=1.0.0"></script>
+  <script defer src="./js/app.js?v=1.0.0"></script>
+</body>
+</html>
